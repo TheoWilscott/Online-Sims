@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Manufacturing Strategy Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .drag-item {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .drag-item:active {
+            cursor: grabbing;
+        }
+        .drag-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .drop-zone {
+            transition: background-color 0.2s, border-color 0.2s;
+            min-h-[150px]; /* Ensure zones always have drop space */
+        }
+        .drop-zone.dragover {
+            background-color: #e0f2fe;
+            border-color: #3b82f6;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .selected-item {
+            border: 2px solid #3b82f6 !important;
+            background-color: #eff6ff !important;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col bg-slate-50">
+
+    <!-- Top Navigation -->
+    <header class="bg-slate-900 text-white shadow-md z-10 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-500 p-2 rounded-lg">
+                    <i class="fa-solid fa-industry"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight hidden sm:block">Lumina Manufacturing Strategy Lab</h1>
+                <h1 class="text-xl font-bold tracking-tight sm:hidden">Lumina Lab</h1>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="initScenario()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-md text-sm font-semibold shadow-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline">Refresh Scenario</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Tabs Navigation -->
+        <div class="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto">
+            <button onclick="switchMainTab('tutorial')" id="nav-tutorial" class="px-4 py-3 font-semibold border-b-4 border-blue-500 text-white transition-colors flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-graduation-cap"></i> 1. Tutorial
+            </button>
+            <button onclick="switchMainTab('lab')" id="nav-lab" class="px-4 py-3 font-semibold border-b-4 border-transparent text-slate-400 hover:text-white transition-colors flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-flask"></i> 2. Simulation Lab
+            </button>
+            <button onclick="switchMainTab('reports')" id="nav-reports" class="px-4 py-3 font-semibold border-b-4 border-transparent text-slate-400 hover:text-white transition-colors flex items-center gap-2 whitespace-nowrap opacity-50 cursor-not-allowed pointer-events-none">
+                <i class="fa-solid fa-chart-pie"></i> 3. Management Reports
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 w-full p-4 lg:p-6" id="main-workspace">
+        
+        <!-- ==================== TAB 1: TUTORIAL ==================== -->
+        <div id="view-tutorial" class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 fade-in">
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Welcome to your Virtual Management Headquarters.</h2>
+            <p class="text-slate-600 mb-8 text-lg">In this lab, you aren't just a bookkeeper; you are the Financial Director of a South African manufacturing firm.</p>
+            
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <div class="text-blue-500 mt-1 text-xl"><i class="fa-solid fa-arrows-up-down-left-right"></i></div>
+                    <div>
+                        <strong class="text-slate-900 text-lg">1. Classify the Accounts</strong>
+                        <p class="text-slate-600 mt-1">In the <strong>Simulation Lab</strong> tab, drag (or tap) each account from the raw Trial Balance into the correct Drop Zone (Income Statement or Balance Sheet).</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="text-blue-500 mt-1 text-xl"><i class="fa-solid fa-calculator"></i></div>
+                    <div>
+                        <strong class="text-slate-900 text-lg">2. Automated Math</strong>
+                        <p class="text-slate-600 mt-1">The tool automatically calculates South African Corporate Tax (27%) and Interest, letting you focus on strategy.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="text-blue-500 mt-1 text-xl"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                        <strong class="text-slate-900 text-lg">3. Analyse & Strategise</strong>
+                        <p class="text-slate-600 mt-1">Generate reports to review your 6 key management metrics and read your Strategic Insight. Is your firm surviving, or thriving?</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 space-y-4">
+                <h3 class="font-bold text-slate-800 border-b border-slate-200 pb-2 text-xl">The Two Master Reports</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-50 border border-blue-100 p-5 rounded-xl">
+                        <h4 class="font-bold text-blue-800 mb-2 text-lg"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Income Statement</h4>
+                        <p class="text-sm text-blue-900 mb-2"><strong>What goes in:</strong> Revenue (Sales) and Expenses (Cost of Goods, Overheads).</p>
+                        <p class="text-sm text-blue-900"><strong>Used for:</strong> Measuring performance over a period of time. It reveals if your core operations are actually turning a profit after running costs.</p>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-5 rounded-xl">
+                        <h4 class="font-bold text-emerald-800 mb-2 text-lg"><i class="fa-solid fa-scale-balanced mr-1"></i> Balance Sheet</h4>
+                        <p class="text-sm text-emerald-900 mb-2"><strong>What goes in:</strong> Assets (Cash, Inventory, Equipment, IP), Liabilities (Loans, Creditors), and Owner's Equity.</p>
+                        <p class="text-sm text-emerald-900"><strong>Used for:</strong> A snapshot of financial stability. It shows what you own vs. what you owe, providing proof of value to banks and investors.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 bg-slate-800 p-6 rounded-xl text-white text-center shadow-md">
+                <p class="font-bold text-yellow-400 mb-2 text-lg"><i class="fa-solid fa-lightbulb"></i> The Golden Rule of Business</p>
+                <p class="text-2xl font-bold leading-tight mb-3">
+                    Sales <span class="text-red-400">≠</span> Profit <span class="mx-4 text-slate-500">|</span> Profit <span class="text-red-400">≠</span> Cash
+                </p>
+                <p class="text-slate-300">A company can show massive sales but go bankrupt from lack of cash.</p>
+            </div>
+
+            <button onclick="switchMainTab('lab')" class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl transition-colors text-lg shadow-lg">
+                Enter the Simulation Lab <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+
+        <!-- ==================== TAB 2: SIMULATION LAB ==================== -->
+        <div id="view-lab" class="max-w-7xl mx-auto w-full hidden fade-in">
+            
+            <!-- Instructions Header -->
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 flex items-start gap-3">
+                <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                <p class="text-sm text-blue-900"><strong>How to play:</strong> Drag items from the Trial Balance to the correct reports. <br><span class="hidden sm:inline">Alternatively, click an item to highlight it, then click the destination box.</span><span class="sm:hidden">Tap an item to select it, then tap the destination box to move it.</span></p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Column 1: Trial Balance -->
+                <div class="lg:col-span-4 flex flex-col h-[400px] lg:h-[700px]">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                        <div class="bg-slate-50 border-b border-slate-200 p-4 flex-none">
+                            <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-blue-500"></i> Raw Trial Balance
+                            </h2>
+                        </div>
+                        <div class="p-4 overflow-y-auto flex-1 bg-slate-50/50 drop-zone" id="tb-zone" ondrop="drop(event)" ondragover="allowDrop(event)" onclick="handleZoneClick('tb-zone')">
+                            <!-- Accounts injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: Drop Zones (Stacked vertically for natural scrolling) -->
+                <div class="lg:col-span-5 flex flex-col gap-6">
+                    
+                    <!-- Income Statement Zone -->
+                    <div class="bg-white rounded-xl shadow-sm border-2 border-dashed border-slate-300 flex-1 flex flex-col overflow-hidden drop-zone min-h-[250px]" id="is-zone" ondrop="drop(event)" ondragover="allowDrop(event)" onclick="handleZoneClick('is-zone')">
+                        <div class="bg-blue-50/50 border-b border-blue-100 p-3 text-center flex-none">
+                            <h3 class="font-bold text-blue-800 text-lg">Income Statement</h3>
+                            <p class="text-xs text-blue-600">Impacts Profit Performance (Revenue & Expenses)</p>
+                        </div>
+                        <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-2" id="is-items"></div>
+                    </div>
+
+                    <!-- Balance Sheet Zone -->
+                    <div class="bg-white rounded-xl shadow-sm border-2 border-dashed border-slate-300 flex-1 flex flex-col overflow-hidden drop-zone min-h-[250px]" id="bs-zone" ondrop="drop(event)" ondragover="allowDrop(event)" onclick="handleZoneClick('bs-zone')">
+                        <div class="bg-emerald-50/50 border-b border-emerald-100 p-3 text-center flex-none">
+                            <h3 class="font-bold text-emerald-800 text-lg">Balance Sheet</h3>
+                            <p class="text-xs text-emerald-600">Impacts Stability & Value (Assets, Liabilities, Equity)</p>
+                        </div>
+                        <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-2" id="bs-items"></div>
+                    </div>
+
+                </div>
+
+                <!-- Column 3: Status & Controls -->
+                <div class="lg:col-span-3 flex flex-col gap-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sticky top-24">
+                        <h3 class="font-bold text-lg mb-4">Lab Status</h3>
+                        
+                        <div class="flex items-center gap-4 mb-6">
+                            <div id="status-icon" class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xl">
+                                <i class="fa-solid fa-scale-unbalanced"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Classification</p>
+                                <p id="status-text" class="text-lg font-bold text-slate-700">Incomplete</p>
+                            </div>
+                        </div>
+
+                        <div id="error-message" class="hidden bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4 border border-red-100">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Some accounts are in the wrong statements. Review and fix.
+                        </div>
+
+                        <button id="generate-btn" disabled onclick="generateReports()" class="w-full bg-slate-300 text-slate-500 py-4 rounded-lg font-bold transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+                            <i class="fa-solid fa-file-invoice"></i> Generate Reports
+                        </button>
+                        <p class="text-xs text-slate-400 text-center mt-3">Tax (27%) and Interest are calculated automatically.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: REPORTS & DASHBOARD ==================== -->
+        <div id="view-reports" class="max-w-7xl mx-auto w-full hidden fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Management Dashboard</h2>
+                <button onclick="switchMainTab('lab')" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-md text-sm font-semibold shadow-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> Edit Classifications
+                </button>
+            </div>
+
+            <!-- Ratios & Insights -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Ratios Column -->
+                <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Cards will be injected here -->
+                    <div id="ratios-container" class="contents"></div>
+                </div>
+
+                <!-- Insights Column -->
+                <div class="bg-slate-900 rounded-xl shadow-lg p-6 text-white flex flex-col">
+                    <h3 class="text-lg font-bold text-blue-400 border-b border-slate-700 pb-3 mb-4">
+                        <i class="fa-solid fa-chess-knight mr-2"></i> Strategic Insights
+                    </h3>
+                    <div id="strategic-insights" class="flex-1 space-y-4">
+                        <!-- Insights injected here -->
+                    </div>
+                    <div class="mt-6 p-4 bg-slate-800 rounded-lg border border-slate-700">
+                        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Investor Sentiment</p>
+                        <p id="investor-sentiment" class="font-bold text-lg"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Statements -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Income Statement -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-blue-600 p-4 text-white">
+                        <h3 class="font-bold text-lg">Income Statement</h3>
+                        <p class="text-blue-100 text-xs">For the Year Ended</p>
+                    </div>
+                    <div class="p-0">
+                        <table class="w-full text-sm">
+                            <tbody id="is-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Balance Sheet -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-emerald-600 p-4 text-white">
+                        <h3 class="font-bold text-lg">Balance Sheet</h3>
+                        <p class="text-emerald-100 text-xs">As of Period End</p>
+                    </div>
+                    <div class="p-0">
+                        <table class="w-full text-sm">
+                            <tbody id="bs-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Chatbot UI -->
+    <div id="chatbot-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <!-- Chat Window -->
+        <div id="chat-window" class="hidden w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 mb-4 overflow-hidden flex flex-col h-[500px] max-h-[70vh]">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-robot text-blue-400"></i>
+                    <h3 class="font-bold">Lumina Advisor AI</h3>
+                </div>
+                <button onclick="toggleChat()" class="text-slate-300 hover:text-white"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto flex flex-col gap-3 bg-slate-50">
+                <div class="bg-white border border-slate-200 text-slate-700 p-3 rounded-lg rounded-tl-none self-start text-sm shadow-sm max-w-[85%]">
+                    Hello! I'm your Financial Strategy Advisor. Ask me anything about the metrics, ratios, or how to classify these accounts!
+                </div>
+            </div>
+            <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
+                <input type="text" id="chat-input" onkeypress="handleChatKeyPress(event)" placeholder="Ask for financial advice..." class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                <button onclick="sendChatMessage()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Chat Toggle Button (Pulse Animation) -->
+        <button onclick="toggleChat()" class="relative w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-transform hover:scale-105 flex items-center justify-center text-xl">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-50 animate-ping"></span>
+            <i class="fa-solid fa-message relative z-10"></i>
+        </button>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        const TAX_RATE = 0.27;
+        const INTEREST_RATE = 0.10;
+
+        // Formatter for ZAR
+        const formatZAR = new Intl.NumberFormat('en-ZA', {
+            style: 'currency',
+            currency: 'ZAR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+
+        // The master account definition
+        const accountDefinitions = [
+            { id: 'sales', name: 'Sales Revenue', type: 'IS', side: 'credit', icon: 'fa-sack-dollar' },
+            { id: 'cogs', name: 'Cost of Goods Sold', type: 'IS', side: 'debit', icon: 'fa-box-open' },
+            { id: 'overheads', name: 'Operating Overheads', type: 'IS', side: 'debit', icon: 'fa-building' },
+            
+            { id: 'plant', name: 'Plant & Equipment', type: 'BS', side: 'debit', icon: 'fa-industry' },
+            { id: 'inventory', name: 'Inventory (Stock)', type: 'BS', side: 'debit', icon: 'fa-boxes-stacked' },
+            { id: 'ar', name: 'Accounts Receivable (Debtors)', type: 'BS', side: 'debit', icon: 'fa-file-invoice-dollar' },
+            { id: 'cash', name: 'Cash at Bank', type: 'BS', side: 'debit', icon: 'fa-money-bill-wave' },
+            { id: 'ap', name: 'Accounts Payable (Creditors)', type: 'BS', side: 'credit', icon: 'fa-file-invoice' },
+            { id: 'loan', name: 'Standard Bank Loan', type: 'BS', side: 'credit', icon: 'fa-building-columns' },
+            { id: 'equity', name: 'Owner\'s Equity & IP', type: 'BS', side: 'credit', icon: 'fa-scale-balanced' }
+        ];
+
+        let currentScenario = {};
+        let selectedElementId = null; 
+
+        // DOM Elements
+        const tbZone = document.getElementById('tb-zone');
+        const isItems = document.getElementById('is-items');
+        const bsItems = document.getElementById('bs-items');
+        const statusText = document.getElementById('status-text');
+        const statusIcon = document.getElementById('status-icon');
+        const errorMsg = document.getElementById('error-message');
+        const generateBtn = document.getElementById('generate-btn');
+
+        // Initialize App
+        window.onload = () => {
+            initScenario();
+            switchMainTab('tutorial'); // Start on tutorial
+        };
+
+        // --- Main Tab Navigation Logic ---
+        function switchMainTab(tabName) {
+            // Hide all views
+            document.getElementById('view-tutorial').classList.add('hidden');
+            document.getElementById('view-lab').classList.add('hidden');
+            document.getElementById('view-reports').classList.add('hidden');
+
+            // Reset nav styles
+            const navs = ['tutorial', 'lab', 'reports'];
+            navs.forEach(nav => {
+                const btn = document.getElementById(`nav-${nav}`);
+                btn.classList.remove('border-blue-500', 'text-white');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+
+            // Show selected view and highlight nav
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            activeBtn.classList.remove('border-transparent', 'text-slate-400');
+            activeBtn.classList.add('border-blue-500', 'text-white');
+            
+            window.scrollTo(0,0);
+        }
+
+        // --- Data Generation ---
+        function generateRandomData() {
+            const sales = Math.floor(Math.random() * (5000 - 1500 + 1) + 1500) * 1000;
+            const cogs = Math.floor(sales * (Math.random() * (0.70 - 0.40) + 0.40));
+            const overheads = Math.floor(Math.random() * (800 - 200 + 1) + 200) * 1000;
+            
+            const plant = Math.floor(Math.random() * (3000 - 1000 + 1) + 1000) * 1000;
+            const inventory = Math.floor(Math.random() * (600 - 100 + 1) + 100) * 1000;
+            const ar = Math.floor(Math.random() * (700 - 100 + 1) + 100) * 1000;
+            const cash = Math.floor(Math.random() * (400 - 50 + 1) + 50) * 1000;
+            
+            const ap = Math.floor(Math.random() * (500 - 100 + 1) + 100) * 1000;
+            const loan = Math.floor(Math.random() * (2000 - 300 + 1) + 300) * 1000;
+
+            const totalDebits = cogs + overheads + plant + inventory + ar + cash;
+            const creditsWithoutEquity = sales + ap + loan;
+            const equity = totalDebits - creditsWithoutEquity;
+
+            if(equity < 300000) {
+                return generateRandomData();
+            }
+
+            return {
+                sales, cogs, overheads, plant, inventory, ar, cash, ap, loan, equity
+            };
+        }
+
+        function initScenario() {
+            // Lock reports tab
+            const navReports = document.getElementById('nav-reports');
+            navReports.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            
+            // If we are currently on reports, switch back to lab
+            if (!document.getElementById('view-reports').classList.contains('hidden')) {
+                switchMainTab('lab');
+            }
+            
+            currentScenario = generateRandomData();
+            selectedElementId = null;
+            
+            tbZone.innerHTML = '';
+            isItems.innerHTML = '';
+            bsItems.innerHTML = '';
+            
+            const shuffledAccounts = [...accountDefinitions].sort(() => Math.random() - 0.5);
+            
+            shuffledAccounts.forEach(acc => {
+                const val = currentScenario[acc.id];
+                const el = document.createElement('div');
+                el.className = 'drag-item bg-white border border-slate-200 rounded-lg p-3 mb-2 flex justify-between items-center shadow-sm select-none';
+                el.draggable = true;
+                el.id = 'acc-' + acc.id;
+                el.setAttribute('data-target', acc.type);
+                
+                // Drag Events
+                el.ondragstart = drag;
+                
+                // Click Events (Mobile Friendly)
+                el.onclick = (e) => {
+                    e.stopPropagation();
+                    handleItemSelection(el.id);
+                };
+
+                el.innerHTML = `
+                    <div class="flex items-center gap-3 pointer-events-none">
+                        <div class="text-slate-400 w-5 text-center"><i class="fa-solid ${acc.icon}"></i></div>
+                        <span class="font-medium text-sm">${acc.name}</span>
+                    </div>
+                    <span class="font-semibold text-slate-700 text-sm pointer-events-none">${formatZAR.format(val)}</span>
+                `;
+                tbZone.appendChild(el);
+            });
+
+            checkBalance();
+        }
+
+        // --- Drag and Drop Logic ---
+        function allowDrop(ev) {
+            ev.preventDefault();
+            let dropTarget = ev.currentTarget;
+            if(dropTarget.classList.contains('drop-zone')) {
+                dropTarget.classList.add('dragover');
+            }
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            clearSelection();
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            document.querySelectorAll('.drop-zone').forEach(el => el.classList.remove('dragover'));
+            
+            let data = ev.dataTransfer.getData("text");
+            let draggedEl = document.getElementById(data);
+            if(!draggedEl) return;
+
+            let targetZoneId = ev.currentTarget.id;
+            if (targetZoneId === 'is-zone') isItems.appendChild(draggedEl);
+            else if (targetZoneId === 'bs-zone') bsItems.appendChild(draggedEl);
+            else if (targetZoneId === 'tb-zone') tbZone.appendChild(draggedEl);
+
+            checkBalance();
+        }
+
+        document.querySelectorAll('.drop-zone').forEach(zone => {
+            zone.addEventListener('dragleave', (e) => {
+                zone.classList.remove('dragover');
+            });
+        });
+
+        // --- Click-to-Move Logic ---
+        function handleItemSelection(id) {
+            if (selectedElementId === id) {
+                clearSelection();
+            } else {
+                clearSelection();
+                selectedElementId = id;
+                document.getElementById(id).classList.add('selected-item');
+            }
+        }
+
+        function handleZoneClick(zoneId) {
+            if (!selectedElementId) return;
+            
+            const el = document.getElementById(selectedElementId);
+            
+            if (zoneId === 'is-zone') isItems.appendChild(el);
+            else if (zoneId === 'bs-zone') bsItems.appendChild(el);
+            else if (zoneId === 'tb-zone') tbZone.appendChild(el);
+            
+            clearSelection();
+            checkBalance();
+        }
+
+        function clearSelection() {
+            if (selectedElementId) {
+                const el = document.getElementById(selectedElementId);
+                if(el) el.classList.remove('selected-item');
+                selectedElementId = null;
+            }
+        }
+
+        // Add event listeners to container backgrounds so users can click empty space to move
+        document.addEventListener('click', (e) => {
+            // Unselect if clicking outside
+            const isDropZone = e.target.closest('.drop-zone');
+            const isDragItem = e.target.closest('.drag-item');
+            if (!isDropZone && !isDragItem) {
+                clearSelection();
+            }
+        });
+
+        // --- Validation Logic ---
+        function checkBalance() {
+            const tbCount = tbZone.children.length;
+            let isBalanced = false;
+            let hasErrors = false;
+
+            if (tbCount === 0) {
+                Array.from(isItems.children).forEach(child => {
+                    if (child.getAttribute('data-target') !== 'IS') hasErrors = true;
+                });
+                Array.from(bsItems.children).forEach(child => {
+                    if (child.getAttribute('data-target') !== 'BS') hasErrors = true;
+                });
+                if (!hasErrors) isBalanced = true;
+            }
+
+            if (tbCount > 0) {
+                statusText.innerText = "Incomplete";
+                statusText.className = "text-lg font-bold text-slate-700";
+                statusIcon.innerHTML = '<i class="fa-solid fa-scale-unbalanced"></i>';
+                statusIcon.className = "w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xl";
+                errorMsg.classList.add('hidden');
+                setBtnState(false);
+            } else if (hasErrors) {
+                statusText.innerText = "Errors Found";
+                statusText.className = "text-lg font-bold text-red-600";
+                statusIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                statusIcon.className = "w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-500 text-xl";
+                errorMsg.classList.remove('hidden');
+                setBtnState(false);
+            } else if (isBalanced) {
+                statusText.innerText = "Balanced";
+                statusText.className = "text-lg font-bold text-emerald-600";
+                statusIcon.innerHTML = '<i class="fa-solid fa-check-double"></i>';
+                statusIcon.className = "w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500 text-xl";
+                errorMsg.classList.add('hidden');
+                setBtnState(true);
+            }
+        }
+
+        function setBtnState(active) {
+            if (active) {
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
+                generateBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'shadow-md');
+            } else {
+                generateBtn.disabled = true;
+                generateBtn.classList.add('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
+                generateBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'shadow-md');
+            }
+        }
+
+        // --- Reporting & Ratios Logic ---
+        function generateReports() {
+            const d = currentScenario;
+
+            const grossProfit = d.sales - d.cogs;
+            const ebit = grossProfit - d.overheads;
+            const interest = d.loan * INTEREST_RATE;
+            const ebt = ebit - interest;
+            const tax = ebt > 0 ? ebt * TAX_RATE : 0;
+            const netProfit = ebt - tax;
+
+            const currentAssets = d.cash + d.ar + d.inventory;
+            const totalAssets = d.plant + currentAssets;
+
+            const currentLiab = d.ap + tax + interest; 
+            const totalLiab = currentLiab + d.loan;
+            
+            const totalEquity = d.equity + netProfit;
+            const totalLiabEquity = totalLiab + totalEquity;
+
+            const ebitMargin = (ebit / d.sales) * 100;
+            const grossMargin = (grossProfit / d.sales) * 100;
+            const currentRatio = currentAssets / currentLiab;
+            const roe = (netProfit / totalEquity) * 100;
+            const debtEquity = d.loan / totalEquity;
+            const quickRatio = (currentAssets - d.inventory) / currentLiab;
+
+            const debtorsDays = (d.ar / d.sales) * 365;
+            const creditorsDays = (d.ap / d.cogs) * 365; 
+            const workingCapital = currentAssets - currentLiab;
+
+            renderIncomeStatement(d, grossProfit, ebit, interest, ebt, tax, netProfit);
+            renderBalanceSheet(d, currentAssets, totalAssets, currentLiab, totalLiab, totalEquity, totalLiabEquity, tax, interest);
+            renderDashboard(ebitMargin, grossMargin, currentRatio, roe, debtEquity, quickRatio, debtorsDays, creditorsDays, workingCapital, d);
+
+            // Unlock reports tab and switch to it
+            const navReports = document.getElementById('nav-reports');
+            navReports.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            switchMainTab('reports');
+        }
+
+        function renderIncomeStatement(d, gp, ebit, interest, ebt, tax, np) {
+            const tbody = document.getElementById('is-table');
+            tbody.innerHTML = `
+                <tr class="border-b border-slate-100"><td class="p-3">Sales Revenue</td><td class="p-3 text-right font-medium">${formatZAR.format(d.sales)}</td></tr>
+                <tr class="border-b border-slate-100 text-slate-500"><td class="p-3">Cost of Goods Sold</td><td class="p-3 text-right">(${formatZAR.format(d.cogs)})</td></tr>
+                <tr class="border-b-2 border-slate-200 bg-slate-50"><td class="p-3 font-semibold text-slate-700">Gross Profit</td><td class="p-3 text-right font-bold text-slate-800">${formatZAR.format(gp)}</td></tr>
+                <tr class="border-b border-slate-100 text-slate-500"><td class="p-3">Operating Overheads</td><td class="p-3 text-right">(${formatZAR.format(d.overheads)})</td></tr>
+                <tr class="border-b-2 border-slate-200 bg-blue-50"><td class="p-3 font-semibold text-blue-800">Operating Profit (EBIT)</td><td class="p-3 text-right font-bold text-blue-800">${formatZAR.format(ebit)}</td></tr>
+                <tr class="border-b border-slate-100 text-slate-500"><td class="p-3">Interest Expense (10%)</td><td class="p-3 text-right">(${formatZAR.format(interest)})</td></tr>
+                <tr class="border-b border-slate-100"><td class="p-3 font-medium">Profit Before Tax</td><td class="p-3 text-right">${formatZAR.format(ebt)}</td></tr>
+                <tr class="border-b border-slate-100 text-red-400"><td class="p-3">Corporate Tax (27%)</td><td class="p-3 text-right">(${formatZAR.format(tax)})</td></tr>
+                <tr class="bg-emerald-50"><td class="p-3 font-bold text-emerald-800">NET PROFIT</td><td class="p-3 text-right font-bold text-emerald-800 border-double border-b-4 border-emerald-600">${formatZAR.format(np)}</td></tr>
+            `;
+        }
+
+        function renderBalanceSheet(d, ca, ta, cl, tl, te, tle, tax, interest) {
+            const tbody = document.getElementById('bs-table');
+            tbody.innerHTML = `
+                <tr class="bg-slate-100 font-bold text-slate-700"><td class="p-2 pl-3" colspan="2">ASSETS</td></tr>
+                <tr class=""><td class="p-2 pl-6 font-semibold text-slate-600" colspan="2">Non-Current Assets</td></tr>
+                <tr class="border-b border-slate-100"><td class="p-2 pl-8">Plant & Equipment</td><td class="p-2 text-right">${formatZAR.format(d.plant)}</td></tr>
+                <tr class=""><td class="p-2 pl-6 font-semibold text-slate-600" colspan="2">Current Assets</td></tr>
+                <tr class="border-b border-slate-100"><td class="p-2 pl-8">Inventory (Stock)</td><td class="p-2 text-right">${formatZAR.format(d.inventory)}</td></tr>
+                <tr class="border-b border-slate-100"><td class="p-2 pl-8">Accounts Receivable</td><td class="p-2 text-right">${formatZAR.format(d.ar)}</td></tr>
+                <tr class="border-b border-slate-200"><td class="p-2 pl-8">Cash at Bank</td><td class="p-2 text-right">${formatZAR.format(d.cash)}</td></tr>
+                <tr class="bg-slate-50 border-b-2 border-slate-300"><td class="p-3 font-bold text-slate-800">TOTAL ASSETS</td><td class="p-3 text-right font-bold text-slate-800 border-double border-b-4 border-slate-600">${formatZAR.format(ta)}</td></tr>
+                
+                <tr class="bg-slate-100 font-bold text-slate-700"><td class="p-2 pl-3" colspan="2">EQUITY & LIABILITIES</td></tr>
+                <tr class=""><td class="p-2 pl-6 font-semibold text-slate-600" colspan="2">Equity</td></tr>
+                <tr class="border-b border-slate-100"><td class="p-2 pl-8">Owner's Equity & Retained Earnings</td><td class="p-2 text-right">${formatZAR.format(te)}</td></tr>
+                
+                <tr class=""><td class="p-2 pl-6 font-semibold text-slate-600" colspan="2">Non-Current Liabilities</td></tr>
+                <tr class="border-b border-slate-100"><td class="p-2 pl-8">Standard Bank Loan</td><td class="p-2 text-right">${formatZAR.format(d.loan)}</td></tr>
+                
+                <tr class=""><td class="p-2 pl-6 font-semibold text-slate-600" colspan="2">Current Liabilities</td></tr>
+                <tr class="border-b border-slate-100"><td class="p-2 pl-8">Accounts Payable</td><td class="p-2 text-right">${formatZAR.format(d.ap)}</td></tr>
+                <tr class="border-b border-slate-100 text-slate-500 text-xs"><td class="p-2 pl-8">Tax Payable</td><td class="p-2 text-right">${formatZAR.format(tax)}</td></tr>
+                <tr class="border-b border-slate-200 text-slate-500 text-xs"><td class="p-2 pl-8">Interest Payable</td><td class="p-2 text-right">${formatZAR.format(interest)}</td></tr>
+                
+                <tr class="bg-slate-50 border-b-2 border-slate-300"><td class="p-3 font-bold text-slate-800">TOTAL EQUITY & LIABILITIES</td><td class="p-3 text-right font-bold text-slate-800 border-double border-b-4 border-slate-600">${formatZAR.format(tle)}</td></tr>
+            `;
+        }
+
+        function renderDashboard(ebitM, gm, cr, roe, de, qr, dd, cd, wc, d) {
+            const container = document.getElementById('ratios-container');
+            const insightsContainer = document.getElementById('strategic-insights');
+            const sentimentEl = document.getElementById('investor-sentiment');
+            
+            container.innerHTML = '';
+            insightsContainer.innerHTML = '';
+            let positiveSignals = 0;
+            let negativeSignals = 0;
+
+            const makeCard = (title, value, desc, isGood, neutral = false) => {
+                const color = neutral ? 'blue' : (isGood ? 'emerald' : 'red');
+                const icon = neutral ? 'fa-info-circle' : (isGood ? 'fa-arrow-trend-up' : 'fa-triangle-exclamation');
+                return `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="text-sm font-semibold text-slate-500 mb-1 uppercase tracking-wider">${title}</h4>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-2xl font-bold text-slate-800">${value}</span>
+                        <div class="w-8 h-8 rounded-full bg-${color}-100 text-${color}-600 flex items-center justify-center">
+                            <i class="fa-solid ${icon}"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-snug">${desc}</p>
+                </div>`;
+            };
+
+            const addInsight = (text, type) => {
+                const color = type === 'good' ? 'text-emerald-400' : (type === 'bad' ? 'text-red-400' : 'text-blue-400');
+                const icon = type === 'good' ? 'fa-check-circle' : (type === 'bad' ? 'fa-xmark-circle' : 'fa-lightbulb');
+                insightsContainer.innerHTML += `
+                    <div class="flex gap-3 items-start bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                        <i class="fa-solid ${icon} ${color} mt-1"></i>
+                        <p class="text-sm text-slate-300 leading-relaxed">${text}</p>
+                    </div>
+                `;
+            };
+
+            let isEbitGood = ebitM >= 10;
+            if(isEbitGood) positiveSignals++; else negativeSignals++;
+            container.innerHTML += makeCard("EBIT Margin", ebitM.toFixed(1) + "%", "Operating profit per R1 of sales.", isEbitGood);
+            if(!isEbitGood) addInsight("Your overheads are eating up your gross profit. You need to control fixed costs or drive higher volume without hiring.", "bad");
+
+            let isGmGood = gm >= 30;
+            if(isGmGood) positiveSignals++; else negativeSignals++;
+            container.innerHTML += makeCard("Gross Margin", gm.toFixed(1) + "%", "Production efficiency. Higher is better.", isGmGood);
+            if(isGmGood) addInsight("Excellent Gross Margin. You have a strong competitive advantage in your production costs.", "good");
+
+            let isCrGood = cr >= 1.2 && cr <= 3;
+            if(isCrGood) positiveSignals++; else negativeSignals++;
+            container.innerHTML += makeCard("Current Ratio", cr.toFixed(2), "Can you pay bills for the next 12 months?", isCrGood);
+            if(cr < 1.0) addInsight("Liquidity Trap! Your current liabilities exceed current assets. Stop buying equipment and focus on generating cash immediately.", "bad");
+
+            let isRoeGood = roe >= 15;
+            if(isRoeGood) positiveSignals++; else negativeSignals++;
+            container.innerHTML += makeCard("Return on Equity", roe.toFixed(1) + "%", "Profit generated per R1 of owner investment.", isRoeGood);
+            
+            let isDeGood = de <= 1.5;
+            if(isDeGood) positiveSignals++; else negativeSignals++;
+            container.innerHTML += makeCard("Debt-to-Equity", de.toFixed(2), "Measures gearing. > 1 means bank owns more than you.", isDeGood);
+            if(de > 1.5) addInsight("Highly Geared! The bank essentially owns this business. Focus strategy on debt repayment before aggressive expansion.", "bad");
+
+            let isQrGood = qr >= 0.8;
+            container.innerHTML += makeCard("Acid Test (Quick)", qr.toFixed(2), "Survival test without selling inventory.", isQrGood);
+            if(!isQrGood) addInsight("You are heavily reliant on stock to pay bills. If sales slow down, you will face a cash crunch.", "bad");
+
+            if (d.cash < d.sales * 0.05) {
+                addInsight(`You generated ${formatZAR.format(d.sales)} in sales, but only have ${formatZAR.format(d.cash)} in cash. Debtors (${Math.round(dd)} days) are squeezing your lifeblood.`, "bad");
+            } else {
+                addInsight("Healthy cash conversion. You are successfully turning sales into actual bank balance.", "good");
+            }
+
+            if (positiveSignals >= 5) {
+                sentimentEl.innerText = "STRONGLY BULLISH 🟢";
+                sentimentEl.className = "font-bold text-2xl text-emerald-400";
+            } else if (positiveSignals >= 3) {
+                sentimentEl.innerText = "CAUTIOUS / HOLD 🟡";
+                sentimentEl.className = "font-bold text-2xl text-yellow-400";
+            } else {
+                sentimentEl.innerText = "HIGH RISK / BEARISH 🔴";
+                sentimentEl.className = "font-bold text-2xl text-red-400";
+            }
+        }
+
+        // --- Chatbot Logic ---
+        const apiKey = "AIzaSyAc_MHoF6DkdzeZu3UCKEgHuPyDAhhiIxs"; // The execution environment provides the key at runtime
+
+        function toggleChat() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.classList.toggle('hidden');
+        }
+
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessageToUI(message, 'user');
+            input.value = '';
+
+            const loadingId = 'loading-' + Date.now();
+            addMessageToUI('<i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing...', 'bot', loadingId);
+
+            try {
+                // Changed model to standard flash to support personal API keys
+                const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: message }] }],
+                        systemInstruction: { parts: [{ text: "You are the Lumina Financial Strategy Advisor. Answer questions briefly and practically to help an SME founder understand their finances, the Business Model Canvas, trial balances, income statements, balance sheets, and key ratios (EBIT, Current Ratio, ROE, etc.). Keep responses under 3 paragraphs." }] }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error?.message || `HTTP error! status: ${response.status}`);
+                }
+
+                const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble analyzing that right now. Please try again.";
+                
+                document.getElementById(loadingId).outerHTML = formatMessageHTML(replyText, 'bot');
+                scrollToBottom();
+
+            } catch (error) {
+                console.error("Chat error:", error);
+                
+                let errorHelp = "Connection error: " + error.message;
+                
+                if (error.message.includes("404") || error.message.includes("not found")) {
+                    errorHelp = "Model Error: Your personal API key doesn't have access to the internal preview model. Scroll up in the code and change 'gemini-2.5-flash-preview-09-2025' to 'gemini-2.5-flash'.";
+                } else if (error.message.includes("Failed to fetch")) {
+                    errorHelp = "Network Error: Your HTML Online Viewer is blocking the connection to Google. Save this code as an .html file on your computer and open it directly in Chrome!";
+                } else if (error.message.includes("400") || error.message.includes("API key")) {
+                    errorHelp = "API Key Error: Please ensure your API key is valid and active.";
+                }
+
+                document.getElementById(loadingId).outerHTML = formatMessageHTML(errorHelp, 'bot');
+                scrollToBottom();
+            }
+        }
+
+        function addMessageToUI(text, sender, id = null) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const msgHTML = formatMessageHTML(text, sender, id);
+            messagesContainer.insertAdjacentHTML('beforeend', msgHTML);
+            scrollToBottom();
+        }
+
+        function formatMessageHTML(text, sender, id = null) {
+            const isUser = sender === 'user';
+            const alignClass = isUser ? 'self-end bg-blue-600 text-white rounded-tr-none' : 'self-start bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm';
+            const idAttr = id ? `id="${id}"` : '';
+            const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            
+            return `
+                <div ${idAttr} class="p-3 rounded-lg text-sm max-w-[85%] ${alignClass}">
+                    ${formattedText}
+                </div>
+            `;
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function fetchWithRetry(url, options, retries = 5, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    // Only retry on 5xx server errors or network failures
+                    if (!response.ok && response.status >= 500) throw new Error(`Server error! status: ${response.status}`);
+                    return response;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
