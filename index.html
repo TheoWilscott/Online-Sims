@@ -282,7 +282,13 @@
                             <div class="bg-indigo-100 p-2 rounded-lg mr-4 mt-1"><i class="fas fa-cog text-indigo-600"></i></div>
                             <div>
                                 <h4 class="font-bold text-slate-900">Step 0: Strategic Setup</h4>
-                                <p class="text-slate-600 text-sm">Navigate to the 'Setup' tab to define your own business name, sales targets, and cost structures. This creates a personalized baseline for your lab.</p>
+                                <p class="text-slate-600 text-sm mb-2">Personalize your lab context in the 'Setup' tab:</p>
+                                <ul class="text-[11px] text-slate-500 list-disc ml-4 space-y-1">
+                                    <li><strong>Personalize:</strong> Name your business for custom financial statements.</li>
+                                    <li><strong>Drive Income:</strong> Set your target monthly sales and variable (COGS) margins.</li>
+                                    <li><strong>Define Structure:</strong> Input your fixed overheads (rent, staff, etc).</li>
+                                    <li><strong>Asset Gearing:</strong> Set up your balance sheet—plant value, loans, and inventory levels.</li>
+                                </ul>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -569,37 +575,62 @@
         </div>
     </main>
 
-    <!-- Lumina AI Assistant -->
+    <!-- Lumina Strategic Knowledge Hub -->
     <div id="ai-chat" class="fixed bottom-8 right-8 z-50 flex flex-col items-end">
-        <!-- Chat Toggle Button -->
-        <button onclick="toggleChat()" class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform pulse-button ring-4 ring-indigo-50 relative">
-            <i class="fas fa-comment-dots text-2xl"></i>
-            <div id="chat-notif" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 border-2 border-white rounded-full flex items-center justify-center">
-                <span class="text-[10px] font-bold">1</span>
-            </div>
+        <!-- FAQ Toggle Button -->
+        <button onclick="toggleFAQ()" class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform pulse-button ring-4 ring-indigo-50 relative">
+            <i class="fas fa-book-open text-2xl"></i>
         </button>
 
-        <!-- Chat Window -->
-        <div id="chat-window" class="hidden absolute bottom-20 right-0 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-indigo-100 flex flex-col overflow-hidden animate-fade-in">
+        <!-- FAQ Window -->
+        <div id="faq-window" class="hidden absolute bottom-20 right-0 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-indigo-100 flex flex-col overflow-hidden animate-fade-in max-h-[70vh]">
             <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                    <span class="font-bold text-xs uppercase tracking-widest">Strategy Advisor</span>
+                    <i class="fas fa-brain text-indigo-400"></i>
+                    <span class="font-bold text-xs uppercase tracking-widest">Strategy Hub</span>
                 </div>
-                <button onclick="toggleChat()" class="text-white/70 hover:text-white"><i class="fas fa-times"></i></button>
+                <button onclick="toggleFAQ()" class="text-white/70 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
             
-            <div id="chat-content" class="h-80 overflow-y-auto p-4 space-y-4 text-sm scroll-smooth">
-                <div class="bg-lumina-50 text-lumina-800 p-3 rounded-2xl rounded-tl-none max-w-[85%]">
-                    Hello! I'm your AI Strategic Advisor. Having trouble classifying items or understanding the ratios? Ask me anything!
-                </div>
+            <div class="overflow-y-auto p-4 space-y-3" id="faq-list">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Frequently Asked Questions</p>
+                
+                <button onclick="showAnswer('inventory')" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-slate-50 transition-all text-xs font-bold text-slate-700">
+                    I am stuck. Does 'Inventory' belong on the Income Statement or the Balance Sheet?
+                </button>
+                
+                <button onclick="showAnswer('profit')" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-slate-50 transition-all text-xs font-bold text-slate-700">
+                    What is the difference between Gross Profit and Net Profit?
+                </button>
+                
+                <button onclick="showAnswer('ratio')" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-slate-50 transition-all text-xs font-bold text-slate-700">
+                    My dashboard says my 'Current Ratio' is dangerously low. What does that mean and how do I fix it?
+                </button>
+                
+                <button onclick="showAnswer('ebit')" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-slate-50 transition-all text-xs font-bold text-slate-700">
+                    What is 'EBIT' and why is it an important metric for me as a founder?
+                </button>
+                
+                <button onclick="showAnswer('debt')" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-slate-50 transition-all text-xs font-bold text-slate-700">
+                    Explain Debt-to-Equity to me like I am a 10-year-old.
+                </button>
+                
+                <button onclick="showAnswer('debtors')" class="w-full text-left p-3 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-slate-50 transition-all text-xs font-bold text-slate-700">
+                    How can I improve my Debtors Days without making my customers angry?
+                </button>
             </div>
 
-            <div class="p-3 bg-slate-50 border-t border-slate-200 flex space-x-2">
-                <input type="text" id="chat-input" placeholder="Type your question..." class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lumina-600/20">
-                <button onclick="sendMessage()" class="bg-lumina-600 text-white p-2 w-10 h-10 rounded-xl flex items-center justify-center hover:bg-lumina-700 transition-all">
-                    <i class="fas fa-paper-plane text-xs"></i>
-                </button>
+            <!-- Answer View (Hidden by default) -->
+            <div id="faq-answer-view" class="hidden absolute inset-0 bg-white z-10 flex flex-col">
+                <div class="p-3 border-b border-slate-100 flex items-center">
+                    <button onclick="hideAnswer()" class="text-indigo-600 font-bold text-xs flex items-center">
+                        <i class="fas fa-chevron-left mr-2"></i> Back to Hub
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-1">
+                    <h4 id="answer-title" class="font-bold text-slate-900 mb-4 leading-tight"></h4>
+                    <div id="answer-body" class="text-sm text-slate-600 leading-relaxed space-y-3"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -619,7 +650,6 @@
             debtorsTarget: 140000,
             creditorsTarget: 50000
         };
-        const GEMINI_API_KEY = "AIzaSyC3UrUvlBB3V8V8ZL6fBRAYQUgIKw3L3cs"; // USER: Inject your Gemini API Key here for the live advisor
 
         const formatCurrency = (amt) => {
             return 'R ' + new Intl.NumberFormat('en-ZA', { maximumFractionDigits: 0 }).format(amt);
@@ -1041,53 +1071,50 @@
             activeBtn.classList.remove('text-slate-400');
         }
 
-        // --- AI CHATBOT LOGIC ---
-        function toggleChat() {
-            const win = document.getElementById('chat-window');
+        // --- STRATEGIC KNOWLEDGE HUB LOGIC ---
+        const faqData = {
+            inventory: {
+                title: "Where does 'Inventory' belong?",
+                body: "Inventory is an <strong>Asset</strong>, so it belongs on the <strong>Balance Sheet</strong>. <br><br>While it relates to production, it represents value that you currently 'own' and can sell in the future. It only hits the Income Statement when you actually sell it—at that point, it becomes 'Cost of Goods Sold'."
+            },
+            profit: {
+                title: "Gross Profit vs. Net Profit",
+                body: "<strong>Gross Profit:</strong> This is what's left after you subtract only the direct costs of making your product (Raw Materials + Labor) from your Sales. It shows your manufacturing efficiency.<br><br><strong>Net Profit:</strong> This is the 'Bottom Line'. It's what's left after you subtract everything else—Rent, Staff, Marketing, Interest, and Taxes. It's the physical cash potential left for the owners."
+            },
+            ratio: {
+                title: "Low Current Ratio: The Liquidity Trap",
+                body: "A current ratio below 1.0 means you owe more money in the next 12 months than you have in cash and near-cash assets. <br><br><strong>How to fix:</strong><br>1. Inject more capital (Equity).<br>2. Convert your Debtors to Cash faster (Collect money!).<br>3. Negotiate longer terms with your suppliers."
+            },
+            ebit: {
+                title: "What is EBIT?",
+                body: "Earnings Before Interest and Taxes. It's a measure of your business's <strong>Operating Strength</strong>. <br><br>It ignores how you funded the business (Interest) and what the government takes (Tax), focusing purely on whether your factory can generate profit from its core operations."
+            },
+            debt: {
+                title: "Explain Debt-to-Equity (The 10-Year-Old Version)",
+                body: "Imagine you want to buy a R100 Lego set. <br><br>If you use R20 of your own pocket money and borrow R80 from your Dad, your Debt-to-Equity is 4.0 (very high risk!). <br><br>If the Lego set breaks, you still owe your Dad R80 but you have nothing left. High Debt-to-Equity means the bank owns more of your toys than you do!"
+            },
+            debtors: {
+                title: "Improving Debtor Days (Gently)",
+                body: "1. <strong>Incentives:</strong> Offer a 2.5% discount for payments within 7 days.<br>2. <strong>Upfront Deposits:</strong> Charge 50% before production starts.<br>3. <strong>Automation:</strong> Send polite, automated reminders 2 days before the invoice is due.<br>4. <strong>Stop Supply:</strong> If they don't pay, don't ship. 'No pay, no spray'."
+            }
+        };
+
+        function toggleFAQ() {
+            const win = document.getElementById('faq-window');
             win.classList.toggle('hidden');
+            hideAnswer(); // Always reset to list when toggling
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const content = document.getElementById('chat-content');
-            const msg = input.value.trim();
-            if (!msg) return;
-
-            // User Message
-            content.innerHTML += `<div class="bg-slate-100 text-slate-700 p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%]">${msg}</div>`;
-            input.value = '';
-            content.scrollTop = content.scrollHeight;
-
-            // Loading state
-            const loadingId = 'loading-' + Date.now();
-            content.innerHTML += `<div id="${loadingId}" class="bg-lumina-50 text-lumina-800 p-3 rounded-2xl rounded-tl-none max-w-[85%]"><i class="fas fa-circle-notch fa-spin"></i> Analyzing...</div>`;
-            content.scrollTop = content.scrollHeight;
-
-            if (!GEMINI_API_KEY) {
-                setTimeout(() => {
-                    document.getElementById(loadingId).innerHTML = `I'm currently in "Offline Mock Mode". To enable my strategic brain, please inject your Gemini API Key into the script variable. However, I can still tell you that Current Ratio = Assets / Liabilities!`;
-                }, 1000);
-                return;
-            }
-
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.1-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `You are Lumina Financial AI. Help with: ${msg}. Context: User is playing a manufacturing finance sim.` }] }]
-                    })
-                });
-                const data = await response.json();
-                const aiMsg = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble processing that strategic request.";
-                document.getElementById(loadingId).textContent = aiMsg;
-            } catch (error) {
-                document.getElementById(loadingId).textContent = "Error connecting to AI. Please check your API key.";
-            }
-            content.scrollTop = content.scrollHeight;
+        function showAnswer(key) {
+            const data = faqData[key];
+            document.getElementById('answer-title').textContent = data.title;
+            document.getElementById('answer-body').innerHTML = data.body;
+            document.getElementById('faq-answer-view').classList.remove('hidden');
         }
 
-        document.getElementById('chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        function hideAnswer() {
+            document.getElementById('faq-answer-view').classList.add('hidden');
+        }
 
         // Initialize on Load
         window.onload = resetScenario;
