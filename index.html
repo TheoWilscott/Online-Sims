@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Manufacturing Strategy Lab</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // Tailwind Configuration for Custom Branding
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lumina: {
+                            50: '#f8fafc',
+                            100: '#e2e8f0',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#0f172a',
+                        },
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        @keyframes pulse-soft { 
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+        }
+        .pulse-button { animation: pulse-soft 2s infinite; }
+
+        /* Drag and Drop Visuals */
+        .dragging { opacity: 0.5; transform: scale(0.95); cursor: grabbing; }
+        .drop-zone-active { border-color: #4f46e5; background-color: #f5f3ff; border-style: solid; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Fixed Viewport for Geometric Balance */
+        html, body { height: 100%; overflow: hidden; }
+        main { height: calc(100vh - 110px); overflow-y: auto; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky top-0 z-50 bg-slate-900 text-white shadow-lg border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-indigo-500 rounded flex items-center justify-center text-white">
+                    <span class="font-bold text-lg">L</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight">Lumina Lab</h1>
+                </div>
+            </div>
+
+            <!-- Dashboard Tabs -->
+            <div class="hidden md:flex bg-slate-800 p-1 rounded-lg">
+                <button onclick="switchTab('tutorial')" id="btn-tutorial" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 active bg-indigo-600 shadow-sm text-white">
+                    Tutorial
+                </button>
+                <button onclick="switchTab('setup')" id="btn-setup" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 text-slate-400 hover:text-white">
+                    Setup
+                </button>
+                <button onclick="switchTab('simulation')" id="btn-simulation" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 text-slate-400 hover:text-white">
+                    Simulation Lab
+                </button>
+                <button onclick="switchTab('reports')" id="btn-reports" class="tab-btn px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 text-slate-400 hover:text-white">
+                    Reports
+                </button>
+            </div>
+
+            <div class="flex items-center">
+                <button onclick="resetScenario()" class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded-md text-[10px] font-black shadow-md flex items-center uppercase tracking-widest text-emerald-950">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh Scenario
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Strategy Banner Sub-header -->
+    <div class="bg-indigo-900 text-indigo-100 py-3 px-8 flex flex-col md:flex-row justify-between items-center shrink-0 gap-4">
+        <div class="flex items-center space-x-4 md:space-x-8 text-[9px] md:text-[10px] font-bold tracking-[0.2em] uppercase overflow-x-auto w-full md:w-auto">
+            <div class="flex items-center shrink-0"><span class="w-2 h-2 rounded-full bg-slate-400 mr-2"></span>Sales is Vanity</div>
+            <div class="flex items-center shrink-0"><span class="w-2 h-2 rounded-full bg-indigo-400 mr-2"></span>Profit is Sanity</div>
+            <div class="flex items-center shrink-0"><span class="w-2 h-2 rounded-full bg-emerald-400 mr-2"></span>Cash is Reality</div>
+        </div>
+        <div class="text-xs italic font-serif opacity-70">Strategic Manufacturing Lab (v2.0)</div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        
+        <!-- View 0: Setup -->
+        <div id="view-setup" class="tab-content animate-fade-in">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm mb-8">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900 mb-2">Strategic Modeling</h2>
+                            <p class="text-slate-500">Configure your baseline manufacturing parameters.</p>
+                        </div>
+                        <div class="bg-slate-100 px-4 py-2 rounded-xl text-right">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Projected Annual Sales</p>
+                            <p id="setup-annual-sales" class="text-xl font-mono font-black text-indigo-600">R 1,200,000</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-10">
+                        <!-- Business Identity -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Enterprise / Business Name</label>
+                            <input type="text" id="setup-name" oninput="updateConfig('name', this.value)" placeholder="e.g. Lumina Precision Engineering" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-lg font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600/20">
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div class="col-span-full border-b border-slate-200 pb-2 flex justify-between items-center">
+                                <h3 class="text-xs font-black text-indigo-900 uppercase tracking-widest flex items-center">
+                                    <i class="fas fa-chart-line mr-2"></i> Income Statement Drivers
+                                </h3>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase italic">Values are Monthly</span>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Direct Monthly Sales (Target)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R</span>
+                                    <input type="number" value="100000" step="1000" oninput="updateConfig('monthlySales', this.value)" class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600/20">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Cost of Goods (COGS %)</label>
+                                <div class="relative">
+                                    <input type="number" value="55" min="0" max="100" oninput="updateConfig('cogsPercent', this.value)" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600/20">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">%</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Operating Overheads (Fixed Cost)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R</span>
+                                    <input type="number" value="20000" step="500" oninput="updateConfig('overheadsAmount', this.value)" class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600/20">
+                                </div>
+                                <p class="text-[10px] text-slate-500 mt-2 italic">*Rent, Staff, Marketing, Fixed Utilities</p>
+                            </div>
+                        </div>
+
+                        <!-- 2. Position Panel (BS - Assets) -->
+                        <div class="grid md:grid-cols-3 gap-6 p-6 bg-emerald-50/30 rounded-2xl border border-emerald-100">
+                            <div class="col-span-full border-b border-emerald-200 pb-2">
+                                <h3 class="text-xs font-black text-emerald-900 uppercase tracking-widest flex items-center">
+                                    <i class="fas fa-building mr-2"></i> Balance Sheet: Assets
+                                </h3>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Plant & Equipment</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">R</span>
+                                    <input type="number" value="500000" step="5000" oninput="updateConfig('plantValue', this.value)" class="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/20">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Inventory Value</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">R</span>
+                                    <input type="number" value="90000" step="1000" oninput="updateConfig('inventoryTarget', this.value)" class="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/20">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Customer Owed (A/R)</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-xs">R</span>
+                                    <input type="number" value="140000" step="1000" oninput="updateConfig('debtorsTarget', this.value)" class="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-600/20">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Gearing Panel (BS - Liabilities) -->
+                        <div class="grid md:grid-cols-2 gap-10 p-6 bg-rose-50/30 rounded-2xl border border-rose-100">
+                            <div class="col-span-full border-b border-rose-200 pb-2">
+                                <h3 class="text-xs font-black text-rose-900 uppercase tracking-widest flex items-center">
+                                    <i class="fas fa-hand-holding-usd mr-2"></i> Balance Sheet: Funding
+                                </h3>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Bank Loan (Principal)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R</span>
+                                    <input type="number" value="300000" step="10000" oninput="updateConfig('loanAmount', this.value)" class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-600/20">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Suppliers Owed (A/P)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">R</span>
+                                    <input type="number" value="50000" step="1000" oninput="updateConfig('creditorsTarget', this.value)" class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-600/20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 p-8 bg-indigo-600 text-white rounded-3xl shadow-xl shadow-indigo-600/20 flex flex-col md:flex-row items-center justify-between">
+                        <div class="mb-6 md:mb-0">
+                            <h4 class="text-xl font-bold mb-1">Finalize Strategy</h4>
+                            <p class="text-indigo-100 text-sm opacity-80">This will generate a new set of trial balance accounts based on your custom targets.</p>
+                        </div>
+                        <button onclick="resetScenario()" class="w-full md:w-auto px-10 py-4 bg-white text-indigo-600 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-50 transition-all transform active:scale-95 shadow-lg">
+                            Enter Simulation Lab
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 1: Tutorial -->
+        <div id="view-tutorial" class="tab-content active animate-fade-in">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-lumina-100 text-lumina-600 text-xs font-bold uppercase mb-4">Strategic Education</span>
+                    <h2 class="text-4xl font-bold text-slate-900 leading-tight mb-6">Master the Financial Mechanics of Manufacturing.</h2>
+                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                        In manufacturing, your physical operations translate directly into financial health. This lab helps you visualize how raw materials, labor, and assets transform into profit and reality.
+                    </p>
+                    
+                    <div class="bg-lumina-900 text-white rounded-2xl p-8 mb-8 shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-xl font-bold mb-4">The Golden Rule</h3>
+                            <div class="grid grid-cols-3 gap-4 text-center">
+                                <div>
+                                    <p class="text-3xl font-bold text-sky-400">Sales</p>
+                                    <p class="text-xs uppercase text-slate-300">is Vanity</p>
+                                </div>
+                                <div>
+                                    <p class="text-3xl font-bold text-emerald-400">Profit</p>
+                                    <p class="text-xs uppercase text-slate-300">is Sanity</p>
+                                </div>
+                                <div>
+                                    <p class="text-3xl font-bold text-amber-400">Cash</p>
+                                    <p class="text-xs uppercase text-slate-300">is Reality</p>
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-gem absolute -bottom-4 -right-4 text-8xl text-white/5"></i>
+                    </div>
+
+                    <div class="space-y-4 mb-10">
+                        <div class="flex items-start">
+                            <div class="bg-indigo-100 p-2 rounded-lg mr-4 mt-1"><i class="fas fa-cog text-indigo-600"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Step 0: Strategic Setup</h4>
+                                <p class="text-slate-600 text-sm">Navigate to the 'Setup' tab to define your own business name, sales targets, and cost structures. This creates a personalized baseline for your lab.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-slate-200 p-2 rounded-lg mr-4 mt-1"><i class="fas fa-check text-slate-600"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Step 1: Classify the Accounts</h4>
+                                <p class="text-slate-600 text-sm">Drag or click accounts from the Trial Balance into the Income Statement or Balance Sheet.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-slate-200 p-2 rounded-lg mr-4 mt-1"><i class="fas fa-check text-slate-600"></i></div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">Step 2: Generate Reports</h4>
+                                <p class="text-slate-600 text-sm">Once the books are balanced, unlock the strategic dashboard to see your Profitability and Cash flow rating.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="switchTab('setup')" class="pulse-button px-8 py-4 bg-lumina-600 text-white rounded-xl font-bold shadow-lg shadow-lumina-600/20 hover:bg-lumina-700 transition-all flex items-center group">
+                        Setup Your Business <i class="fas fa-arrow-right ml-3 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <i class="fas fa-1 text-4xl text-lumina-200 mb-4 block"></i>
+                        <h4 class="font-bold mb-2">Classify</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Drag accounts to the correct financial statements to balance the books.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow mt-8">
+                        <i class="fas fa-2 text-4xl text-lumina-200 mb-4 block"></i>
+                        <h4 class="font-bold mb-2">Automated Math</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Let the lab handle complex taxes, interest, and depreciation logic.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                        <i class="fas fa-3 text-4xl text-lumina-200 mb-4 block"></i>
+                        <h4 class="font-bold mb-2">Analyse</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">View generated reports and see your current business health rating.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow mt-8">
+                        <i class="fas fa-4 text-4xl text-lumina-200 mb-4 block"></i>
+                        <h4 class="font-bold mb-2">Strategise</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Make decisions about gearing, cash cycles, and profit margins.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 2: Simulation Lab -->
+        <div id="view-simulation" class="tab-content animate-fade-in">
+            <div class="grid lg:grid-cols-12 gap-8 h-[calc(100vh-160px)]">
+                
+                <!-- Left: Raw Trial Balance -->
+                <div class="lg:col-span-3 flex flex-col h-full">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 bg-slate-50/50">
+                            <h3 class="font-bold text-slate-900 flex justify-between items-center">
+                                Trial Balance
+                                <span class="bg-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase" id="account-count">10 items</span>
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-1">Classify all accounts below</p>
+                        </div>
+                        <div id="source-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+                            <!-- Draggable items will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle: Drop Zones -->
+                <div class="lg:col-span-6 flex flex-col h-full space-y-6">
+                    <!-- Income Statement Zone -->
+                    <div class="flex-1 bg-white rounded-2xl border-2 border-indigo-200 flex flex-col overflow-hidden transition-colors relative" id="zone-is" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'is')">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                            <span class="text-7xl font-black uppercase tracking-tighter">OPERATIONS</span>
+                        </div>
+                        <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 relative z-10">
+                            <h4 class="font-bold text-xs uppercase tracking-widest text-slate-500">Income Statement Zone</h4>
+                            <i class="fas fa-receipt text-indigo-300"></i>
+                        </div>
+                        <div class="flex-1 p-4 overflow-y-auto space-y-3 flex flex-wrap content-start gap-3 relative z-10" id="list-is">
+                            <!-- Items dropped here -->
+                        </div>
+                    </div>
+
+                    <!-- Balance Sheet Zone -->
+                    <div class="flex-1 bg-white rounded-2xl border-2 border-emerald-200 flex flex-col overflow-hidden transition-colors relative" id="zone-bs" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'bs')">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                            <span class="text-7xl font-black uppercase tracking-tighter text-emerald-900">POSITION</span>
+                        </div>
+                        <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/30 relative z-10">
+                            <h4 class="font-bold text-xs uppercase tracking-widest text-slate-500">Balance Sheet Zone</h4>
+                            <i class="fas fa-balance-scale text-emerald-300"></i>
+                        </div>
+                        <div class="flex-1 p-4 overflow-y-auto space-y-3 flex flex-wrap content-start gap-3 relative z-10" id="list-bs">
+                            <!-- Items dropped here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Lab Status & Actions -->
+                <div class="lg:col-span-3 flex flex-col h-full">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col h-full">
+                        <div class="mb-8">
+                            <h3 class="font-bold text-lg mb-4 text-slate-900">Lab Diagnostic</h3>
+                            
+                            <div id="status-incomplete" class="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-start space-x-3 mb-6">
+                                <div class="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center text-white shrink-0">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-amber-900 text-xs uppercase tracking-wider">Stages Remaining</p>
+                                    <p class="text-amber-800 text-[10px] mt-0.5">Assign all accounts to unlock reports.</p>
+                                </div>
+                            </div>
+
+                            <div id="status-error" class="hidden bg-rose-50 p-4 rounded-xl border border-rose-100 flex items-start space-x-3 mb-6">
+                                <div class="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center text-white shrink-0">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-rose-900 text-xs uppercase tracking-wider">Strategic Mismatch</p>
+                                    <p class="text-rose-800 text-[10px] mt-0.5">Some accounts are incorrectly assigned.</p>
+                                </div>
+                            </div>
+
+                            <div id="status-balanced" class="hidden bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex items-start space-x-3 mb-6">
+                                <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white shrink-0">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-emerald-900 text-xs uppercase tracking-wider">Reports Ready</p>
+                                    <p class="text-emerald-800 text-[10px] mt-0.5">All accounts assigned correctly.</p>
+                                </div>
+                            </div>
+
+                            <!-- Investor Sentiment Meter -->
+                            <div class="mb-8">
+                                <div class="flex justify-between text-[9px] font-black text-slate-400 mb-2 tracking-[0.2em] uppercase">Investor Sentiment</div>
+                                <div class="flex h-2.5 bg-slate-100 rounded-full overflow-hidden relative">
+                                    <div class="w-1/3 bg-rose-400 border-r border-white"></div>
+                                    <div class="w-1/3 bg-amber-400 border-r border-white"></div>
+                                    <div class="w-1/3 bg-emerald-400"></div>
+                                    <!-- Pointer -->
+                                    <div id="sentiment-pointer" class="absolute top-0 left-1/2 w-3 h-3 bg-white border-2 border-slate-900 rounded-full -translate-x-1/2 -mt-0.5 shadow-lg transition-all duration-700"></div>
+                                </div>
+                                <div class="flex justify-between mt-1 text-[8px] font-black uppercase text-slate-400 tracking-tighter">
+                                    <span>Bearish</span>
+                                    <span>Neutral</span>
+                                    <span>Bullish</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 space-y-4">
+                            <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Checklist</div>
+                            <div id="checklist" class="space-y-3">
+                                <div class="flex items-center text-[11px] font-medium text-slate-600 transition-opacity" id="check-assign">
+                                    <div class="w-4 h-4 rounded-full border-2 border-slate-200 mr-3 flex items-center justify-center check-icon"></div>
+                                    Assign all 10 accounts
+                                </div>
+                                <div class="flex items-center text-[11px] font-medium text-slate-600 transition-opacity" id="check-accuracy">
+                                    <div class="w-4 h-4 rounded-full border-2 border-slate-200 mr-3 flex items-center justify-center check-icon"></div>
+                                    Verify assignment accuracy
+                                </div>
+                                <div class="flex items-center text-[11px] font-medium text-slate-600 transition-opacity" id="check-balance">
+                                    <div class="w-4 h-4 rounded-full border-2 border-slate-200 mr-3 flex items-center justify-center check-icon"></div>
+                                    Unlock Strategic Briefing
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btn-generate" disabled onclick="generateReports()" class="w-full py-4 bg-slate-200 text-slate-400 font-bold rounded-xl cursor-not-allowed uppercase tracking-widest text-xs transition-all mt-6 group">
+                            Generate Reports
+                            <span class="block text-[8px] font-normal group-hover:text-slate-500">Complete Lab to Unlock</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 3: Management Reports -->
+        <div id="view-reports" class="tab-content animate-fade-in">
+            <!-- Strategic Header -->
+            <div class="flex justify-between items-center mb-10">
+                <div>
+                    <h2 id="report-business-name" class="text-3xl font-bold text-slate-900">Executive Briefing</h2>
+                    <p class="text-slate-500">Post-Simulation Strategy & Health Metrics</p>
+                </div>
+                <button onclick="switchTab('simulation')" class="px-5 py-2.5 text-slate-600 font-semibold hover:bg-slate-200 rounded-xl transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>Adjust Configuration
+                </button>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8 mb-12">
+                <!-- Insights Panel -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+                    <div class="flex items-center mb-6">
+                        <div class="bg-lumina-100 text-lumina-600 px-4 py-2 rounded-xl font-bold mr-4">
+                            <i class="fas fa-brain mr-2"></i>Advisor Insights
+                        </div>
+                        <div id="investor-sentiment" class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-slate-100 text-slate-600">
+                            Sentiment: Calculating...
+                        </div>
+                    </div>
+                    <div id="insights-text" class="space-y-4 text-slate-600 leading-relaxed">
+                        <!-- Dynamic text goes here -->
+                    </div>
+                </div>
+
+                <!-- Snapshot Summary -->
+                <div class="bg-lumina-900 text-white rounded-3xl p-8 shadow-xl shadow-lumina-900/20">
+                    <h3 class="font-bold text-slate-400 uppercase text-xs tracking-widest mb-6">Bottom Line</h3>
+                    <div class="mb-10">
+                        <p class="text-slate-400 text-sm mb-1">Net Disposable Profit</p>
+                        <p id="net-profit-val" class="text-5xl font-black text-slate-50">R 0</p>
+                    </div>
+                    <div class="space-y-4 border-t border-white/10 pt-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400 text-sm">Tax Provision (27%)</span>
+                            <span id="tax-val" class="font-bold">R 0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400 text-sm">Interest Expense</span>
+                            <span id="interest-val" class="font-bold">R 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ratios Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ratio-card">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">EBIT Margin</p>
+                    <div class="flex items-end justify-between">
+                        <p id="ebit-magin-val" class="text-2xl font-bold text-slate-800">0%</p>
+                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500">Efficiency</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ratio-card">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Current Ratio</p>
+                    <div class="flex items-end justify-between">
+                        <p id="current-ratio-val" class="text-2xl font-bold text-slate-800">0.00</p>
+                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500">Liquidity</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ratio-card">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">Debt to Equity</p>
+                    <div class="flex items-end justify-between">
+                        <p id="debt-equity-val" class="text-2xl font-bold text-slate-800">0.00</p>
+                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500">Solvency</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm ratio-card">
+                    <p class="text-xs font-bold text-slate-400 uppercase mb-2">ROE</p>
+                    <div class="flex items-end justify-between">
+                        <p id="roe-val" class="text-2xl font-bold text-slate-800">0%</p>
+                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500">Return</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formal Financial Statements -->
+            <div class="grid lg:grid-cols-2 gap-10">
+                <!-- Formal IS -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <div id="is-table-header" class="p-4 bg-slate-50 border-b border-slate-200 font-bold text-slate-600">Income Statement</div>
+                    <table class="w-full text-sm">
+                        <tbody id="is-table-body" class="divide-y divide-slate-100">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Formal BS -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    <div id="bs-table-header" class="p-4 bg-slate-50 border-b border-slate-200 font-bold text-slate-600">Balance Sheet</div>
+                    <table class="w-full text-sm">
+                        <tbody id="bs-table-body" class="divide-y divide-slate-100">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lumina AI Assistant -->
+    <div id="ai-chat" class="fixed bottom-8 right-8 z-50 flex flex-col items-end">
+        <!-- Chat Toggle Button -->
+        <button onclick="toggleChat()" class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform pulse-button ring-4 ring-indigo-50 relative">
+            <i class="fas fa-comment-dots text-2xl"></i>
+            <div id="chat-notif" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 border-2 border-white rounded-full flex items-center justify-center">
+                <span class="text-[10px] font-bold">1</span>
+            </div>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="hidden absolute bottom-20 right-0 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-indigo-100 flex flex-col overflow-hidden animate-fade-in">
+            <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <span class="font-bold text-xs uppercase tracking-widest">Strategy Advisor</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white/70 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div id="chat-content" class="h-80 overflow-y-auto p-4 space-y-4 text-sm scroll-smooth">
+                <div class="bg-lumina-50 text-lumina-800 p-3 rounded-2xl rounded-tl-none max-w-[85%]">
+                    Hello! I'm your AI Strategic Advisor. Having trouble classifying items or understanding the ratios? Ask me anything!
+                </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 border-t border-slate-200 flex space-x-2">
+                <input type="text" id="chat-input" placeholder="Type your question..." class="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lumina-600/20">
+                <button onclick="sendMessage()" class="bg-lumina-600 text-white p-2 w-10 h-10 rounded-xl flex items-center justify-center hover:bg-lumina-700 transition-all">
+                    <i class="fas fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA LAYER ---
+        let accounts = [];
+        let classifications = { is: [], bs: [], unclassified: [] };
+        let businessConfig = {
+            name: "Lumina Manufacturing Co.",
+            monthlySales: 100000,
+            cogsPercent: 55,
+            overheadsAmount: 20000,
+            plantValue: 500000,
+            loanAmount: 300000,
+            inventoryTarget: 90000,
+            debtorsTarget: 140000,
+            creditorsTarget: 50000
+        };
+        const GEMINI_API_KEY = ""; // USER: Inject your Gemini API Key here for the live advisor
+
+        const formatCurrency = (amt) => {
+            return 'R ' + new Intl.NumberFormat('en-ZA', { maximumFractionDigits: 0 }).format(amt);
+        };
+
+        // --- SETUP LOGIC ---
+        function updateConfig(key, value) {
+            if (key !== 'name') {
+                businessConfig[key] = parseFloat(value) || 0;
+            } else {
+                businessConfig[key] = value;
+            }
+            
+            // Specific calculated dashboard labels
+            if (key === 'monthlySales') {
+                document.getElementById('setup-annual-sales').textContent = formatCurrency(businessConfig.monthlySales * 12);
+            }
+            
+            // Visual feedback on name in setup
+            if (key === 'name') {
+                document.getElementById('report-business-name').textContent = value + ' - Executive Briefing';
+                document.getElementById('is-table-header').textContent = value + ' - Income Statement';
+                document.getElementById('bs-table-header').textContent = value + ' - Balance Sheet';
+            }
+        }
+
+        // --- SCENARIO GENERATION ---
+        function resetScenario() {
+            const variance = () => 0.98 + Math.random() * 0.04; // Very tight variance for manual modeling
+
+            let sales = Math.floor((businessConfig.monthlySales * 12) * variance());
+            let cogs = Math.floor(sales * (businessConfig.cogsPercent / 100) * variance());
+            let overheads = Math.floor((businessConfig.overheadsAmount * 12) * variance());
+            
+            let plant = Math.floor(businessConfig.plantValue * variance());
+            let inventory = Math.floor(businessConfig.inventoryTarget * variance());
+            let ar = Math.floor(businessConfig.debtorsTarget * variance());
+            
+            let ap = Math.floor(businessConfig.creditorsTarget * variance());
+            let loan = Math.floor(businessConfig.loanAmount * variance());
+
+            // We need a plug figure for cash to make the trial balance start "sensibly"
+            // Let's assume a starting cash position of roughly 10% of annual sales
+            let cash = Math.floor(sales * 0.1 * variance());
+
+            // Debits must equal Credits
+            let totalDebits = cogs + overheads + plant + inventory + ar + cash;
+            let currentCredits = sales + ap + loan;
+            let equity = totalDebits - currentCredits;
+
+            // Enforce equity floor for valid strategic simulation
+            if (equity < 100000) {
+                // If equity is too low, we adjust the cash downwards to force a more challenging scenario
+                // rather than infinite retries, as user values might be "extreme"
+                cash = Math.max(10000, cash - (100000 - equity));
+                totalDebits = cogs + overheads + plant + inventory + ar + cash;
+                equity = totalDebits - currentCredits;
+            }
+
+            accounts = [
+                { id: '1', name: 'Sales Revenue', value: sales, type: 'is', side: 'credit' },
+                { id: '2', name: 'Cost of Goods Sold', value: cogs, type: 'is', side: 'debit' },
+                { id: '3', name: 'Operating Overheads', value: overheads, type: 'is', side: 'debit' },
+                { id: '4', name: 'Plant & Equipment', value: plant, type: 'bs', side: 'debit' },
+                { id: '5', name: 'Inventory', value: inventory, type: 'bs', side: 'debit' },
+                { id: '6', name: 'Accounts Receivable', value: ar, type: 'bs', side: 'debit' },
+                { id: '7', name: 'Cash at Bank', value: cash, type: 'bs', side: 'debit' },
+                { id: '8', name: 'Accounts Payable', value: ap, type: 'bs', side: 'credit' },
+                { id: '9', name: 'Standard Bank Loan', value: loan, type: 'bs', side: 'credit' },
+                { id: '10', name: 'Owner\'s Equity', value: equity, type: 'bs', side: 'credit' },
+            ];
+
+            // Shuffle accounts
+            accounts = accounts.sort(() => Math.random() - 0.5);
+            classifications = { is: [], bs: [], unclassified: [...accounts] };
+            
+            renderSimulation();
+            validateSimulation();
+            
+            // Switch to simulation if button clicked from setup
+            if (document.getElementById('view-setup').classList.contains('active')) {
+                switchTab('simulation');
+            }
+        }
+
+        // --- INTERACTION MECHANICS ---
+        function renderSimulation() {
+            const sourceList = document.getElementById('source-list');
+            const listIs = document.getElementById('list-is');
+            const listBs = document.getElementById('list-bs');
+            const countLabel = document.getElementById('account-count');
+
+            sourceList.innerHTML = '';
+            listIs.innerHTML = '';
+            listBs.innerHTML = '';
+
+            classifications.unclassified.forEach(acc => {
+                sourceList.appendChild(createCard(acc));
+            });
+
+            classifications.is.forEach(acc => {
+                listIs.appendChild(createCard(acc));
+            });
+
+            classifications.bs.forEach(acc => {
+                listBs.appendChild(createCard(acc));
+            });
+
+            countLabel.textContent = `${classifications.unclassified.length} items left`;
+        }
+
+        let selectedCardId = null;
+
+        function createCard(acc) {
+            const card = document.createElement('div');
+            
+            // Map types to design labels and colors
+            const labelMap = {
+                'Sales Revenue': { label: 'REVENUE', color: 'text-indigo-600' },
+                'Cost of Goods Sold': { label: 'EXPENSE', color: 'text-rose-600' },
+                'Operating Overheads': { label: 'EXPENSE', color: 'text-rose-600' },
+                'Plant & Equipment': { label: 'ASSET', color: 'text-emerald-600' },
+                'Inventory': { label: 'ASSET', color: 'text-emerald-600' },
+                'Accounts Receivable': { label: 'ASSET', color: 'text-emerald-600' },
+                'Cash at Bank': { label: 'ASSET', color: 'text-emerald-600' },
+                'Accounts Payable': { label: 'LIABILITY', color: 'text-amber-600' },
+                'Standard Bank Loan': { label: 'LIABILITY', color: 'text-amber-600' },
+                'Owner\'s Equity': { label: 'EQUITY', color: 'text-slate-600' },
+            };
+
+            const meta = labelMap[acc.name] || { label: 'ACCOUNT', color: 'text-slate-500' };
+
+            card.className = `p-3 bg-white rounded-xl border border-slate-200 shadow-sm cursor-grab active:cursor-grabbing transition-all hover:border-indigo-400 hover:shadow-md animate-fade-in group w-full ${selectedCardId === acc.id ? 'ring-2 ring-indigo-600 border-indigo-600' : ''}`;
+            card.draggable = true;
+            card.dataset.id = acc.id;
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-1">
+                    <span class="text-[9px] font-black ${meta.color} tracking-widest">${meta.label}</span>
+                    <span class="text-[9px] text-slate-400 font-bold tracking-tighter uppercase">${acc.side}</span>
+                </div>
+                <div class="text-xs font-bold text-slate-800 mb-1 leading-tight">${acc.name}</div>
+                <div class="text-lg font-mono font-black text-slate-900">${formatCurrency(acc.value)}</div>
+            `;
+
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', acc.id);
+                card.classList.add('dragging');
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+            });
+
+            // Click-to-Move
+            card.addEventListener('click', () => {
+                if (selectedCardId === acc.id) {
+                    selectedCardId = null;
+                } else {
+                    selectedCardId = acc.id;
+                }
+                renderSimulation();
+            });
+
+            return card;
+        }
+
+        // Zone Click Handling (Part of Click-to-Move)
+        document.getElementById('zone-is').addEventListener('click', (e) => {
+            if (selectedCardId && e.target.closest('#zone-is')) {
+                moveAccount(selectedCardId, 'is');
+                selectedCardId = null;
+            }
+        });
+
+        document.getElementById('zone-bs').addEventListener('click', (e) => {
+            if (selectedCardId && e.target.closest('#zone-bs')) {
+                moveAccount(selectedCardId, 'bs');
+                selectedCardId = null;
+            }
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drop-zone-active');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drop-zone-active');
+        }
+
+        function handleDrop(e, targetZone) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drop-zone-active');
+            const accId = e.dataTransfer.getData('text/plain');
+            moveAccount(accId, targetZone);
+        }
+
+        function moveAccount(id, targetZone) {
+            let foundAcc = null;
+            // Remove from existing lists
+            Object.keys(classifications).forEach(key => {
+                const index = classifications[key].findIndex(a => a.id === id);
+                if (index > -1) {
+                    foundAcc = classifications[key].splice(index, 1)[0];
+                }
+            });
+
+            if (foundAcc) {
+                classifications[targetZone].push(foundAcc);
+            }
+            
+            renderSimulation();
+            validateSimulation();
+        }
+
+        // --- VALIDATION & REPORTS ---
+        function validateSimulation() {
+            const statusIncomplete = document.getElementById('status-incomplete');
+            const statusError = document.getElementById('status-error');
+            const statusBalanced = document.getElementById('status-balanced');
+            const btnGenerate = document.getElementById('btn-generate');
+
+            const isClassified = classifications.unclassified.length === 0;
+            const hasErrors = classifications.is.some(a => a.type !== 'is') || classifications.bs.some(a => a.type !== 'bs');
+
+            // Checklist Logic
+            updateCheck('check-assign', isClassified);
+            updateCheck('check-accuracy', isClassified && !hasErrors);
+            updateCheck('check-balance', isClassified && !hasErrors);
+
+            statusIncomplete.classList.add('hidden');
+            statusError.classList.add('hidden');
+            statusBalanced.classList.add('hidden');
+
+            if (!isClassified) {
+                statusIncomplete.classList.remove('hidden');
+                btnGenerate.disabled = true;
+                btnGenerate.className = "w-full py-4 bg-slate-200 text-slate-400 font-bold rounded-xl cursor-not-allowed uppercase tracking-widest text-xs transition-all mt-6 group";
+            } else if (hasErrors) {
+                statusError.classList.remove('hidden');
+                btnGenerate.disabled = true;
+                btnGenerate.className = "w-full py-4 bg-slate-200 text-slate-400 font-bold rounded-xl cursor-not-allowed uppercase tracking-widest text-xs transition-all mt-6 group";
+            } else {
+                statusBalanced.classList.remove('hidden');
+                btnGenerate.disabled = false;
+                btnGenerate.className = "w-full py-4 bg-lumina-600 text-white rounded-xl font-bold hover:bg-lumina-700 transition-all flex flex-col items-center justify-center cursor-pointer shadow-lg shadow-lumina-600/20 uppercase tracking-widest text-xs";
+            }
+        }
+
+        function updateCheck(id, isDone) {
+            const el = document.getElementById(id);
+            const icon = el.querySelector('.check-icon');
+            if (isDone) {
+                el.classList.add('opacity-100');
+                el.classList.remove('opacity-40');
+                icon.className = 'w-4 h-4 rounded-full border-2 border-emerald-500 bg-emerald-500 mr-3 flex items-center justify-center check-icon text-white';
+                icon.innerHTML = '<i class="fas fa-check text-[8px]"></i>';
+            } else {
+                el.classList.add('opacity-40');
+                el.classList.remove('opacity-100');
+                icon.className = 'w-4 h-4 rounded-full border-2 border-slate-300 mr-3 flex items-center justify-center check-icon';
+                icon.innerHTML = '';
+            }
+        }
+
+        function generateReports() {
+            // Find account values
+            const findAcc = (name) => accounts.find(a => a.name === name)?.value || 0;
+            
+            const sales = findAcc('Sales Revenue');
+            const cogs = findAcc('Cost of Goods Sold');
+            const overheads = findAcc('Operating Overheads');
+            const plant = findAcc('Plant & Equipment');
+            const inventory = findAcc('Inventory');
+            const ar = findAcc('Accounts Receivable');
+            const cash = findAcc('Cash at Bank');
+            const ap = findAcc('Accounts Payable');
+            const loan = findAcc('Standard Bank Loan');
+            const equity = findAcc('Owner\'s Equity');
+
+            // Math Logic
+            const gp = sales - cogs;
+            const ebit = gp - overheads;
+            const interest = loan * 0.10;
+            const ebt = ebit - interest;
+            const tax = ebt > 0 ? ebt * 0.27 : 0;
+            const netProfit = ebt - tax;
+
+            // Balance Sheet Math
+            const currentAssets = cash + ar + inventory;
+            const currentLiabilities = ap + tax + interest;
+            const totalAssets = plant + currentAssets;
+            const finalizedEquity = equity + netProfit;
+
+            // Ratios
+            const ebitMargin = (ebit / sales) * 100;
+            const grossMargin = (gp / sales) * 100;
+            const currentRatio = currentAssets / currentLiabilities;
+            const roe = (netProfit / finalizedEquity) * 100;
+            const debtEquity = loan / finalizedEquity;
+            const quickRatio = (currentAssets - inventory) / currentLiabilities;
+            const debtorDays = (ar / sales) * 365;
+
+            // UI Updates
+            document.getElementById('net-profit-val').textContent = formatCurrency(netProfit);
+            document.getElementById('tax-val').textContent = formatCurrency(tax);
+            document.getElementById('interest-val').textContent = formatCurrency(interest);
+            
+            document.getElementById('ebit-magin-val').textContent = `${ebitMargin.toFixed(1)}%`;
+            document.getElementById('current-ratio-val').textContent = currentRatio.toFixed(2);
+            document.getElementById('debt-equity-val').textContent = debtEquity.toFixed(2);
+            document.getElementById('roe-val').textContent = `${roe.toFixed(1)}%`;
+
+            // Insights Logic
+            const insightsBox = document.getElementById('insights-text');
+            const sentimentBox = document.getElementById('investor-sentiment');
+            insightsBox.innerHTML = '';
+            
+            let insights = [];
+            let score = 0;
+
+            if (currentRatio < 1.0) {
+                insights.push({ icon: 'fa-water', color: 'text-danger', text: '<strong>Liquidity Trap:</strong> Your current liabilities exceed your assets. You risk a technical insolvency if creditors demand payment simultaneously.' });
+                score -= 2;
+            } else if (currentRatio < 1.5) {
+                insights.push({ icon: 'fa-exclamation-triangle', color: 'text-warning', text: '<strong>Tight Liquidity:</strong> Your cash buffer is thin. Any delay in customer payments could freeze your production line.' });
+                score -= 1;
+            } else {
+                insights.push({ icon: 'fa-shield-halved', color: 'text-success', text: '<strong>Solid Liquidity:</strong> Your working capital is healthy. You have sufficient headroom to manage operational shocks.' });
+                score += 2;
+            }
+
+            if (debtEquity > 1.5) {
+                insights.push({ icon: 'fa-anchor', color: 'text-danger', text: '<strong>Highly Geared:</strong> Your bank owns more of the business than you do. High interest payments are eating ${formatCurrency(interest)} of your potential growth capital.' });
+                score -= 2;
+            } else if (debtEquity < 0.5) {
+                insights.push({ icon: 'fa-leaf', color: 'text-success', text: '<strong>Equity Strong:</strong> You have low reliance on bank debt, giving you massive strategic agility.' });
+                score += 2;
+            }
+
+            if (cash < sales * 0.05) {
+                insights.push({ icon: 'fa-droplet-slash', color: 'text-danger', text: '<strong>Cash Drought:</strong> Your cash reserves are less than 5% of sales. Your debtors (${formatCurrency(ar)}) are squeezing your lifeblood.' });
+            }
+
+            insights.forEach(ins => {
+                insightsBox.innerHTML += `
+                    <div class="flex items-start">
+                        <i class="fas ${ins.icon} ${ins.color} mt-1 mr-3 text-lg"></i>
+                        <p class="text-sm">${ins.text}</p>
+                    </div>
+                `;
+            });
+
+            if (score > 1) {
+                sentimentBox.textContent = 'Sentiment: Bullish';
+                sentimentBox.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-100 text-emerald-600';
+                document.getElementById('sentiment-pointer').style.left = '85%';
+            } else if (score < -1) {
+                sentimentBox.textContent = 'Sentiment: Bearish';
+                sentimentBox.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase bg-rose-100 text-rose-600';
+                document.getElementById('sentiment-pointer').style.left = '15%';
+            } else {
+                sentimentBox.textContent = 'Sentiment: Hold';
+                sentimentBox.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase bg-slate-100 text-slate-600';
+                document.getElementById('sentiment-pointer').style.left = '50%';
+            }
+
+            // Render Tables
+            renderTables(sales, cogs, gp, overheads, ebit, interest, ebt, tax, netProfit, plant, inventory, ar, cash, currentAssets, totalAssets, ap, currentLiabilities, loan, finalizedEquity);
+
+            switchTab('reports');
+        }
+
+        function renderTables(sales, cogs, gp, overheads, ebit, interest, ebt, tax, netProfit, plant, inventory, ar, cash, cuAsset, tAsset, ap, cuLiab, loan, fEquity) {
+            const isBody = document.getElementById('is-table-body');
+            const bsBody = document.getElementById('bs-table-body');
+
+            isBody.innerHTML = `
+                <tr class="font-bold"><td class="p-3">Sales Revenue</td><td class="p-3 text-right">${formatCurrency(sales)}</td></tr>
+                <tr class="text-slate-500"><td class="p-3">Cost of Goods Sold</td><td class="p-3 text-right">(${formatCurrency(cogs)})</td></tr>
+                <tr class="bg-slate-50 font-bold"><td class="p-3">Gross Profit</td><td class="p-3 text-right">${formatCurrency(gp)}</td></tr>
+                <tr class="text-slate-500"><td class="p-3">Operating Overheads</td><td class="p-3 text-right">(${formatCurrency(overheads)})</td></tr>
+                <tr class="bg-slate-100 font-black"><td class="p-3">EBIT (Operating Profit)</td><td class="p-3 text-right">${formatCurrency(ebit)}</td></tr>
+                <tr><td class="p-3 italic">Interest Expense (10%)</td><td class="p-3 text-right">(${formatCurrency(interest)})</td></tr>
+                <tr class="bg-slate-50 font-bold"><td class="p-3">Profit Before Tax</td><td class="p-3 text-right">${formatCurrency(ebt)}</td></tr>
+                <tr><td class="p-3 italic">Corporate Tax (27%)</td><td class="p-3 text-right">(${formatCurrency(tax)})</td></tr>
+                <tr class="bg-lumina-900 text-white font-black"><td class="p-3">Net Disposable Profit</td><td class="p-3 text-right">${formatCurrency(netProfit)}</td></tr>
+            `;
+
+            bsBody.innerHTML = `
+                <tr class="bg-slate-50 font-bold"><td class="p-3" colspan="2 text-center">ASSETS</td></tr>
+                <tr><td class="p-3">Plant & Equipment</td><td class="p-3 text-right">${formatCurrency(plant)}</td></tr>
+                <tr><td class="p-3">Inventory</td><td class="p-3 text-right">${formatCurrency(inventory)}</td></tr>
+                <tr><td class="p-3">Accounts Receivable</td><td class="p-3 text-right">${formatCurrency(ar)}</td></tr>
+                <tr><td class="p-3">Cash at Bank</td><td class="p-3 text-right">${formatCurrency(cash)}</td></tr>
+                <tr class="bg-slate-100 font-bold"><td class="p-3">TOTAL ASSETS</td><td class="p-3 text-right">${formatCurrency(tAsset)}</td></tr>
+                <tr class="bg-slate-50 font-bold"><td class="p-3" colspan="2 text-center">LIABILITIES & EQUITY</td></tr>
+                <tr><td class="p-3">Accounts Payable</td><td class="p-3 text-right">${formatCurrency(ap)}</td></tr>
+                <tr><td class="p-3 italic text-slate-400 font-medium">Provision for Tax/Interest</td><td class="p-3 text-right font-medium text-slate-400">${formatCurrency(tax + interest)}</td></tr>
+                <tr><td class="p-3">Bank Loan (Non-Current)</td><td class="p-3 text-right">${formatCurrency(loan)}</td></tr>
+                <tr><td class="p-3">Total Equity (inc. Net Profit)</td><td class="p-3 text-right">${formatCurrency(fEquity)}</td></tr>
+                <tr class="bg-lumina-900 text-white font-black"><td class="p-3">TOTAL LIAB & EQUITY</td><td class="p-3 text-right">${formatCurrency(fEquity + loan + ap + tax + interest)}</td></tr>
+            `;
+        }
+
+        // --- UTILS & NAVIGATION ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${tabId}`).classList.add('active');
+
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('bg-indigo-600', 'shadow-sm', 'text-white');
+                b.classList.add('text-slate-400');
+            });
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.add('bg-indigo-600', 'shadow-sm', 'text-white');
+            activeBtn.classList.remove('text-slate-400');
+        }
+
+        // --- AI CHATBOT LOGIC ---
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            win.classList.toggle('hidden');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const content = document.getElementById('chat-content');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            // User Message
+            content.innerHTML += `<div class="bg-slate-100 text-slate-700 p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%]">${msg}</div>`;
+            input.value = '';
+            content.scrollTop = content.scrollHeight;
+
+            // Loading state
+            const loadingId = 'loading-' + Date.now();
+            content.innerHTML += `<div id="${loadingId}" class="bg-lumina-50 text-lumina-800 p-3 rounded-2xl rounded-tl-none max-w-[85%]"><i class="fas fa-circle-notch fa-spin"></i> Analyzing...</div>`;
+            content.scrollTop = content.scrollHeight;
+
+            if (!GEMINI_API_KEY) {
+                setTimeout(() => {
+                    document.getElementById(loadingId).innerHTML = `I'm currently in "Offline Mock Mode". To enable my strategic brain, please inject your Gemini API Key into the script variable. However, I can still tell you that Current Ratio = Assets / Liabilities!`;
+                }, 1000);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.1-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `You are Lumina Financial AI. Help with: ${msg}. Context: User is playing a manufacturing finance sim.` }] }]
+                    })
+                });
+                const data = await response.json();
+                const aiMsg = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble processing that strategic request.";
+                document.getElementById(loadingId).textContent = aiMsg;
+            } catch (error) {
+                document.getElementById(loadingId).textContent = "Error connecting to AI. Please check your API key.";
+            }
+            content.scrollTop = content.scrollHeight;
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+        // Initialize on Load
+        window.onload = resetScenario;
+    </script>
+</body>
+</html>
